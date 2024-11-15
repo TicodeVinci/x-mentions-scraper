@@ -1,0 +1,4 @@
+node_modules/
+.env
+twitter-cookies.json
+tweets.json
