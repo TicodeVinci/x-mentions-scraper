@@ -4,6 +4,9 @@
   "description": "A Node.js application that uses Puppeteer to scrape mentions from Twitter/X.com.",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/x-scraper.ts",
+    "dev": "ts-node-dev --respawn src/x-scraper.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,5 +15,12 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "puppeteer": "^23.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/puppeteer": "^7.0.4",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
   }
 }
