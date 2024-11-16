@@ -42,20 +42,20 @@ async function replyToTweet(tweetUrl: string, replyText: string = "Let's goo"): 
             throw new Error('No cookies found. Please run get-xmentions first to authenticate.');
         }
 
-        // Navigate to tweet
+        // Navigate to tweet (reduced timeout)
         await page.goto(tweetUrl, {
             waitUntil: 'domcontentloaded',
-            timeout: 20000
-        });
-
-        // Wait for the contenteditable div to be present
-        await page.waitForSelector('[data-testid="tweetTextarea_0"]', {
-            visible: true,
             timeout: 15000
         });
 
-        // Add a delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for the contenteditable div (reduced timeout)
+        await page.waitForSelector('[data-testid="tweetTextarea_0"]', {
+            visible: true,
+            timeout: 10000
+        });
+
+        // Reduced initial delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Click and focus on the contenteditable div
         await page.evaluate(() => {
@@ -66,11 +66,11 @@ async function replyToTweet(tweetUrl: string, replyText: string = "Let's goo"): 
             }
         });
 
-        // Add another delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Reduced second delay
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Type the reply text
-        await page.keyboard.type(replyText, { delay: 50 });
+        // Type the reply text (reduced typing delay)
+        await page.keyboard.type(replyText, { delay: 30 });
 
         // Click the reply button to submit
         await page.waitForSelector('[data-testid="tweetButtonInline"]');
@@ -98,9 +98,9 @@ async function replyToTweet(tweetUrl: string, replyText: string = "Let's goo"): 
 
 async function processNewTweets(): Promise<void> {
     try {
-        // Wait for 10 seconds to ensure tweet search is completed
+        // Reduced wait time for tweet search completion
         console.log('Waiting for tweet search to complete...');
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         // Clean up old tweet files first
         await cleanupOldTweetFiles();
@@ -129,7 +129,7 @@ async function processNewTweets(): Promise<void> {
             if (!repliedTweets.repliedIds.includes(tweet.tweetId)) {
                 console.log(`Processing tweet: ${tweet.tweetUrl}`);
                 await replyToTweet(tweet.tweetUrl);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds between replies
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Reduced wait time between replies
             }
         }
 

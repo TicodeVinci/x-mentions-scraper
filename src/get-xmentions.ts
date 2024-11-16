@@ -132,7 +132,7 @@ async function performSearch(page: Page): Promise<void> {
         if (mentioningInput) {
             await mentioningInput.click();
             const searchQuery = '@TicodeVinci';
-            await page.keyboard.type(searchQuery, { delay: 20 });
+            await page.keyboard.type(searchQuery, { delay: 10 });
 
             // Scroll and wait
             await page.evaluate(() => {
@@ -174,7 +174,7 @@ async function performSearch(page: Page): Promise<void> {
                 });
             }, month, day, year);
 
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             // Click the search button
             await page.evaluate(() => {
