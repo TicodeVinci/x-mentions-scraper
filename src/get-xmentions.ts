@@ -25,6 +25,12 @@ interface XCookie extends CookieParam {
     sameParty?: boolean;
 }
 
+// Add new interface for tracking replied tweets
+interface RepliedTweets {
+    repliedIds: string[];
+    lastUpdated: string;
+}
+
 // Functions
 async function loginToX(): Promise<void> {
     const browser: Browser = await puppeteer.launch({
@@ -201,38 +207,59 @@ async function performSearch(page: Page): Promise<void> {
     }
 }
 
-async function scrapeTweets(page: Page): Promise<Tweet[]> {
-    return await page.evaluate(() => {
-        const tweetElements = document.querySelectorAll('[data-testid="tweet"]');
-        return Array.from(tweetElements).map(tweet => {
-            const username = tweet.querySelector('[data-testid="User-Name"]')?.textContent || '';
-            const tweetText = tweet.querySelector('[data-testid="tweetText"]')?.textContent || '';
-            const tweetUrl = (tweet.querySelector('a[href*="/status/"]') as HTMLAnchorElement)?.href || '';
-            const tweetId = tweetUrl.split('/').pop() || '';
-
-            return {
-                username,
-                tweetText,
-                timestamp: new Date().toISOString(), // You might want to extract actual timestamp
-                tweetUrl,
-                tweetId,
-                metrics: {
-                    replies: '0',
-                    retweets: '0',
-                    likes: '0'
-                }
-            };
-        });
-    });
+// Add new function to manage replied tweets
+async function loadRepliedTweets(): Promise<RepliedTweets> {
+    const repliedPath: string = path.join(__dirname, 'replied-tweets.json');
+    if (fs.existsSync(repliedPath)) {
+        return JSON.parse(fs.readFileSync(repliedPath, 'utf-8'));
+    }
+    return { repliedIds: [], lastUpdated: new Date().toISOString() };
 }
 
-async function main(): Promise<void> {
+export async function markTweetAsReplied(tweetId: string): Promise<void> {
+    const repliedPath: string = path.join(__dirname, 'replied-tweets.json');
+    const replied = await loadRepliedTweets();
+    replied.repliedIds.push(tweetId);
+    replied.lastUpdated = new Date().toISOString();
+    fs.writeFileSync(repliedPath, JSON.stringify(replied, null, 2));
+}
+
+// Modify scrapeTweets function
+async function scrapeTweets(page: Page): Promise<Tweet[]> {
+    const repliedTweets = await loadRepliedTweets();
+    
+    return await page.evaluate((repliedIds: string[]) => {
+        const tweetElements = document.querySelectorAll('[data-testid="tweet"]');
+        return Array.from(tweetElements)
+            .map(tweet => {
+                const username = tweet.querySelector('[data-testid="User-Name"]')?.textContent || '';
+                const tweetText = tweet.querySelector('[data-testid="tweetText"]')?.textContent || '';
+                const tweetUrl = (tweet.querySelector('a[href*="/status/"]') as HTMLAnchorElement)?.href || '';
+                const tweetId = tweetUrl.split('/').pop() || '';
+
+                return {
+                    username,
+                    tweetText,
+                    timestamp: new Date().toISOString(),
+                    tweetUrl,
+                    tweetId,
+                    metrics: {
+                        replies: '0',
+                        retweets: '0',
+                        likes: '0'
+                    }
+                };
+            })
+            .filter(tweet => !repliedIds.includes(tweet.tweetId)); // Filter out already replied tweets
+    }, repliedTweets.repliedIds);
+}
+
+// Change the main function to be exported
+export async function main(): Promise<void> {
     try {
         await loginToX();
     } catch (error) {
         console.error('Failed to login:', error instanceof Error ? error.message : String(error));
         process.exit(1);
     }
-}
-
-main(); 
+} 

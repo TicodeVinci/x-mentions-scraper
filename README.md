@@ -1,15 +1,55 @@
-# Twitter Mentions Scraper
+# X Mentions Scraper/Reply
 
-A TypeScript application that uses Puppeteer to scrape Twitter mentions for a specific user.
+An alternative to the overexpensive X API that uses Puppeteer to scrape and reply to mentions on X.com to build reply bots like Pikaso.
 
-## Setup
+- 🤖 Automated Twitter login and session management
+- 📊 Scrapes mentions including metrics (replies, retweets, likes)
+- 🔄 Tracks replied tweets to avoid duplicates
+- 💾 Local storage of scraped data posts
 
-1. Clone the repository
-2. Run `npm install`
-3. Create a `.env` file with your Twitter credentials:
-   ```env
-   TWITTER_USERNAME=your_username
-   TWITTER_PASSWORD=your_password
-   ```
-4. Run `npm run dev` or `npm start`
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/TicodeVinci/x-mentions-scraper.git
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Configure environment variables:
+   Create a `.env` file in the root directory with your Twitter credentials:
+```env
+TWITTER_USERNAME=your_username
+TWITTER_PASSWORD=your_password
+```
+
+## Usage
+
+```bash
+npm run dev
+```
+
+
+## Project Structure
+
+```
+├── src/
+│   ├── get-xmentions.ts    # Main scraper logic
+│   └── post-xreply.ts      # Reply posting functionality
+
+```
+
+## Data Storage
+
+The application stores several types of data locally:
+- `twitter-cookies.json`: Stores session cookies for authentication
+- `tweets.json`: Contains scraped mentions data
+- `replied-tweets.json`: Tracks which tweets have been replied to
+
+## Disclaimer
+
+This tool is for educational purposes only. Make sure to comply with Twitter's Terms of Service and rate limits when using this scraper.
 
